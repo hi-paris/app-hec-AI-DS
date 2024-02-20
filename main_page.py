@@ -3,13 +3,16 @@ import os
 import altair as alt
 import streamlit as st
 import pandas as pd
+import numpy as np
+import plotly
+import plotly.express as px
 
-from st_pages import Page, show_pages, add_page_title
+from st_pages import Page, Section, show_pages, add_page_title
 from pandas.plotting import register_matplotlib_converters
 from pathlib import Path
 from PIL import Image
 from htbuilder import HtmlElement, div, hr, a, p, img, styles
-from htbuilder.units import percent, px
+#from htbuilder.units import percent, px
 
 register_matplotlib_converters()
 
@@ -131,8 +134,9 @@ st.title("AI and Data Science Examples")
 st.subheader("HEC Paris, 2023-2024")
 st.markdown("Course provided by **Shirish C. SRIVASTAVA**")
 #st.image("images/hec.png", width=300)
-st.markdown("---")
+#st.info("Welcome to the AI and Data Science examples app. ")
 
+st.markdown("---")
 
 
 ##################################################################################
@@ -143,14 +147,19 @@ st.markdown("---")
 # AI use case pages
 show_pages(
     [
-        Page("main_page.py", "Home", "🏠"),
+        Page("main_page.py", "Home Page", "🏠"),
+        Page("pages/supervised_unsupervised_page.py", "Supervised vs Unsupervised", "🔍"), 
         Page("pages/timeseries_analysis.py", "Time Series Forecasting", "📈"),
-        Page("pages/sentiment_analysis.py", "Sentiment Analysis", "🤔"),
+        Page("pages/sentiment_analysis.py", "Sentiment Analysis", "👍"),
         #Page("pages/image_classification.py", "Image classification", ":camera:"),
         Page("pages/object_detection.py", "Object Detection", "📹"), #need to reduce RAM costs
         Page("pages/recommendation_system.py", "Recommendation system", "🛒")
     ]
 )
+
+
+#st.sidebar.divider()
+# select_case = st.sidebar.selectbox("Select a usecase", ("Email", "Home phone", "Mobile phone"))
 
 
 # Hi! PARIS collaboration mention
@@ -162,32 +171,15 @@ show_pages(
 
 
 
-
-
 ##################################################################################
 #                               PAGE CONTENT                                     #
 ##################################################################################
 
-st.markdown("## Introduction to Data Science")
+st.info("""**About the app**: The AI and Data Science Examples app was created to introduce students to the field of Data Science by showcasing real-life applications of AI.
+        It includes use cases using traditional Machine Learning algorithms on structured data, as well as Deep Learning models run on unstructured data (text, images,...).""")
 
 
-st.divider()
+st.markdown("## 1. Introduction to Data Science")
 
-st.markdown("## Supervised vs Unsupervised Learning")
-st.markdown("""In the field of Data Science, there are two main approaches/frameworks to build algorithms, **Supervised** and **Unsupervised learning**. 
-            Being able to distinguish which type of model fits your application is essential step in building an AI project.
-- In **Supervised Learning**, models are trained by learning from "labeled data", which is data that contains the expected value to predict. Labeled data provides to the model the desired output, which it will then use to learn patterns and make predictions.   
-- In **Unsupervised Learning**, models learn the data's inherent structure without any specific guidance or instruction. The algorithm will identify any naturally occurring patterns in the dataset using "unlabeled data".
-""")
+st.markdown("Welcome to the AI and Data Science Examples app by HEC Paris")
 
-path_ML_data = r"data/ML"
-
-
-ml_usecase = st.selectbox("Choose an application", 
-                          ["Supervised Learning", 
-                           "Unsupervised Learning for Customer Segmentation"])
-
-# if ml_usecase == "Unsupervised Learning for Customer Segmentation":
-#     customer_data = pd.read_csv(os.path.join(path_ML_data, "customer_segmentation.csv"))
-#     customer_data.drop(columns=["ID","Var_1","Segmentation"], inplace=True)
-#     st.dataframe(customer_data)

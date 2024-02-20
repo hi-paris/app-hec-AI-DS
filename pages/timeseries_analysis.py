@@ -17,7 +17,7 @@ st.set_page_config(layout="wide")
 
 ###################################### TITLE ####################################
 
-st.image("images/ts_header.png")
+#st.image("images/ts_header.png")
 st.markdown("# Time Series Forecasting")
 
 st.markdown("### What is Time Series Forecasting ?")
