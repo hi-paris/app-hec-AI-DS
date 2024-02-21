@@ -80,7 +80,7 @@ with tab1_:
                     You can filter the dataset by Date, State or Rating""", unsafe_allow_html=True)
         
         select_image_box = st.radio("",
-        ["Filter by Date (Year)", "Filter by State", "Filter by Rating", "No filter"],
+        ["Filter by Date (Year)", "Filter by State", "Filter by Rating", "Remove filters"],
         index=None, label_visibility="collapsed")
 
         if select_image_box == "Filter by Date (Year)":
@@ -95,7 +95,7 @@ with tab1_:
             selected_rating = st.multiselect("Rating", sorted(list(reviews_df["Rating"].dropna().unique())))
             reviews_df = reviews_df.loc[reviews_df["Rating"].isin(selected_rating)]
 
-        if select_image_box == "No filter":
+        if select_image_box == "Remove filters":
             pass
 
         #st.slider()
@@ -138,7 +138,7 @@ with tab1_:
         # Results
         df_results = reviews_df.copy()
         df_results["Result"] = predictions
-        df_results["Result"] = df_results["Result"].map({"NEU":"Neutral","NEG":"Negative","POS":"Positive"})
+        df_results["Result"] = df_results["Result"].map({"NEU":"Neutral", "NEG":"Negative", "POS":"Positive"})
         df_results["Negative"] = np.round(np.array(negative)*100)
         df_results["Neutral"] = np.round(np.array(neutral)*100)
         df_results["Positive"] = np.round(np.array(positive)*100)
