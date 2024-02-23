@@ -3,6 +3,8 @@ import pickle
 import streamlit as st
 import pandas as pd
 
+from pysentimiento import create_analyzer
+
 @st.cache_data
 def load_data_pickle(path, file):
     """Load data from pickle file"""
@@ -21,3 +23,4 @@ def load_model_pickle(path, file):
     path_file = os.path.join(path, file)
     model = pickle.load(open(path_file, 'rb'))
     return model
+

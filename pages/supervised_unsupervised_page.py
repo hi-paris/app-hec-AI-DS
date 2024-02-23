@@ -48,7 +48,7 @@ with col2:
 - They are also used to identify unusual patterns or outliers.
                 """, unsafe_allow_html=True)
     st.markdown(" ")
-    st.image("images/unsupervised_learner.webp", caption="An example of unsupervised Learning")
+    st.image("images/unsupervised_learner.webp", caption="An example of unsupervised Learning", width=450)
 
 st.markdown("  ")
 
@@ -333,12 +333,7 @@ if learning_type == "Supervised Learning":
     ################################# CUSTOMER CHURN #####################################
         
     elif sl_usecase == "Customer churn prediction ❌":
-        pass
-
-
-
-
-
+        st.warning("This page is under construction")
 
 
 

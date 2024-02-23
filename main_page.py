@@ -136,7 +136,11 @@ st.markdown("Course provided by **Shirish C. SRIVASTAVA**")
 #st.image("images/hec.png", width=300)
 #st.info("Welcome to the AI and Data Science examples app. ")
 
-st.markdown("---")
+st.markdown(" ")
+st.info("""**About the app**: The AI and Data Science Examples app was created to introduce students to the field of Data Science by showcasing real-life applications of AI.
+        It includes use cases using traditional Machine Learning algorithms on structured data, as well as Deep Learning models run on unstructured data (text, images,...).""")
+
+st.divider()
 
 
 ##################################################################################
@@ -152,7 +156,7 @@ show_pages(
         Page("pages/timeseries_analysis.py", "Time Series Forecasting", "📈"),
         Page("pages/sentiment_analysis.py", "Sentiment Analysis", "👍"),
         #Page("pages/image_classification.py", "Image classification", ":camera:"),
-        Page("pages/object_detection.py", "Object Detection", "📹"), #need to reduce RAM costs
+        #Page("pages/object_detection.py", "Object Detection", "📹"), #need to reduce RAM costs
         Page("pages/recommendation_system.py", "Recommendation system", "🛒")
     ]
 )
@@ -162,12 +166,12 @@ show_pages(
 # select_case = st.sidebar.selectbox("Select a usecase", ("Email", "Home phone", "Mobile phone"))
 
 
-# Hi! PARIS collaboration mention
-# st.markdown("  ")
-# image_hiparis = Image.open('images/hi-paris.png')
-# st.image(image_hiparis, width=150)
-# url = "https://www.hi-paris.fr/"
-# st.markdown("**The app was made in collaboration with: [Hi! PARIS Engineering Team](%s)**" % url)
+#Hi! PARIS collaboration mention
+st.markdown("  ")
+image_hiparis = Image.open('images/hi-paris.png')
+st.image(image_hiparis, width=150)
+url = "https://www.hi-paris.fr/"
+st.markdown("**The app was made in collaboration with: [Hi! PARIS Engineering Team](%s)**" % url)
 
 
 
@@ -175,11 +179,10 @@ show_pages(
 #                               PAGE CONTENT                                     #
 ##################################################################################
 
-st.info("""**About the app**: The AI and Data Science Examples app was created to introduce students to the field of Data Science by showcasing real-life applications of AI.
-        It includes use cases using traditional Machine Learning algorithms on structured data, as well as Deep Learning models run on unstructured data (text, images,...).""")
 
 
-st.markdown("## 1. Introduction to Data Science")
 
-st.markdown("Welcome to the AI and Data Science Examples app by HEC Paris")
+# st.markdown("## 1. Introduction to Data Science")
+
+# st.markdown("Welcome to the AI and Data Science Examples app by HEC Paris")
 

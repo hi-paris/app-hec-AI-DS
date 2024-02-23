@@ -66,6 +66,8 @@ st.markdown("### Power Consumption Forecasting ⚡")
 st.info("""In this use case, a time series forecasting model is used to predict the **energy consumption** (or **Global Active Power**) of a household using historical data. 
         A forecasting model can be a valuable tool to optimize resource planning and avoid overloads during peak demand periods.""")
 
+st.markdown(" ")
+
 _, col, _ = st.columns([0.15,0.7,0.15])
 with col:
     st.image("images/energy_consumption.jpg")
@@ -75,33 +77,16 @@ st.markdown("    ")
 
 st.markdown("#### About the data 📋")
 
-st.markdown("""You were provided the **daily energy consumption** of a household between January 2007 and November 2010 (46 months). 
+st.markdown("""You were provided data from the **daily energy consumption** of a household between January 2007 and November 2010 (46 months). <br>
             The goal is to forecast the **Global active power** being produced daily by the household. 
-            Additional variables such as **Global Intensity** and three levels of **Sub-metering** are also available for the forecast.
+            Additional variables such as *Global Intensity* and three levels of *Sub-metering* are also available for the forecast.
             """, unsafe_allow_html=True)
 
-st.info("""Forecasting models are **supervised learning models**. 
-        Historical data is used to train the model (same as labeled data). 
-        The other half of the data will be used to assess our model's performance. """)
+st.markdown(" ")
 
+st.info("""The data has been split into "historical data" and "to be predicted". Since forecasting models are **supervised**, we will use the household's energy data from January 2007 to December 2009 as historical data to train the model.
+        We will then use the rest of the available data (starting January 2010) to test the performance of the model.""")
 
-# SELECT CUTOFF DATE
-all_dates = data_model["ds"].sort_values().unique()
-#select_cutoff_date = '2010-01-01' # split train/test
-
-# # Create a date object for "2007-01-01"
-# start_date = date(2009, 5, 1)
-# end_date = date(2010, 9, 1)
-
-# select_cutoff_date = st.slider(
-# "**Select a cut-off date**",
-# min_value=start_date,
-# max_value=end_date,
-# value=date(2010, 1, 1),
-# format="YYYY-MM-DD")
-
-# #st.write("Start time:", select_cutoff_date )
-# select_cutoff_date = select_cutoff_date.strftime('%Y-%m-%d')
 select_cutoff_date = date(2010, 1, 1)
 select_cutoff_date = select_cutoff_date.strftime('%Y-%m-%d')
 
@@ -121,75 +106,87 @@ st.markdown(" ")
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Global active power", "Sub metering 1", "Sub metering 2", "Sub metering 3", "Global Intensity"])
 
 with tab1:
-    st.success("""**Global active power** refers to the total real power consumed by electrical devices in the house (in kilowatts).""")
     ts_chart = alt.Chart(data_clean_plot).mark_line().encode(
-        x=alt.X('ds:T', title="Date"),
+        x=alt.X('ds:T', axis=alt.Axis(format='%b %Y', tickCount=12), title="Date"),
         y=alt.Y('y:Q', title="Global active power"),
         color='split:N',
     ).interactive()
 
     st.markdown("**View Global active power** (to be forecasted)")
     st.altair_chart(ts_chart, use_container_width=True)
+    st.success("""**Global active power** refers to the total real power consumed by electrical devices in the house (in kilowatts).""")
     
 
-
 with tab2:
-    st.success("**Sub-metering 1** is the total active power consumed by the kitchen in the house (in kilowatts).")
-    ts_chart = alt.Chart(data_clean_plot).mark_line().encode(
-                x=alt.X('ds:T', title="Date"),
+    ts_chart = alt.Chart(data_clean_plot.loc[data_clean_plot["split"]=="historical data"]).mark_line().encode(
+                x=alt.X('ds:T', axis=alt.Axis(format='%b %Y', tickCount=12), title="Date"),
                 y=alt.Y('Sub_metering_1:Q', title="Sub metering 1"),
                 color=alt.Color('split:N')) #, scale=custom_color_scale))
             
-    st.markdown("**View Sub-metering 1** (to be added)")
+    st.markdown("**View Sub-metering 1** (additional)")
     st.altair_chart(ts_chart.interactive(), use_container_width=True)
+    st.success("**Sub-metering 1** is the total active power consumed by the kitchen in the house (in kilowatts).")
 
 
-with tab3:
-    st.success("**Sub-metering 2** is the total active power consumed by the laundry room in the house (in kilowatts).")
-    
-    ts_chart = alt.Chart(data_clean_plot).mark_line().encode(
-        x=alt.X('ds:T', title="Date"),
+
+with tab3:    
+    ts_chart = alt.Chart(data_clean_plot.loc[data_clean_plot["split"]=="historical data"]).mark_line().encode(
+        x=alt.X('ds:T', axis=alt.Axis(format='%b %Y', tickCount=12), title="Date"),
         y=alt.Y('Sub_metering_2:Q', title="Sub metering 2"),
         color=alt.Color('split:N')) #, scale=custom_color_scale))
 
-    st.markdown("**View Sub-metering 2** (to be added)")
+    st.markdown("**View Sub-metering 2** (additional)")
     st.altair_chart(ts_chart.interactive(), use_container_width=True)
+    st.success("**Sub-metering 2** is the total active power consumed by the laundry room in the house (in kilowatts).")
 
-with tab4:    
-    st.success("**Sub-metering 3** is the active power consumed by the electric water heater and air conditioner in the household (in kilowatts).")
-    
-    ts_chart = alt.Chart(data_clean_plot).mark_line().encode(
-            x=alt.X('ds:T', title="Date"),
+
+with tab4:        
+    ts_chart = alt.Chart(data_clean_plot.loc[data_clean_plot["split"]=="historical data"]).mark_line().encode(
+            x=alt.X('ds:T', axis=alt.Axis(format='%b %Y', tickCount=12), title="Date"),
             y=alt.Y('Sub_metering_3:Q', title="Sub metering 3"),
             color=alt.Color('split:N')) #scale=custom_color_scale))
 
-    st.markdown("**View Sub-metering 3** (to be added)")
+    st.markdown("**View Sub-metering 3** (additional)")
     st.altair_chart(ts_chart.interactive(), use_container_width=True)
+    st.success("**Sub-metering 3** is the active power consumed by the electric water heater and air conditioner in the household (in kilowatts).")
+
 
 with tab5:
-    st.success("**Global intensity** is the average current intensity delivered to the household (amps).")
-
     custom_color_scale = alt.Scale(range=['red', 'lightcoral'])
-    ts_chart = alt.Chart(data_clean_plot).mark_line().encode(
+    ts_chart = alt.Chart(data_clean_plot.loc[data_clean_plot["split"]=="historical data"]).mark_line().encode(
         x=alt.X('ds:T', title="Date"),
         y=alt.Y('Global_intensity:Q', title="Global active power"),
         color=alt.Color('split:N')) # scale=custom_color_scale))
 
-    st.markdown("**View Global intensity** (to be added)")
+    st.markdown("**View Global intensity** (additional)")
     st.altair_chart(ts_chart.interactive(), use_container_width=True)
+    st.success("**Global intensity** is the average current intensity delivered to the household (amps).")
 
 
-st.markdown("#### Train the model ⚙️")
-st.info("""In traditional forecasting models, only the historical values of the variable predicted are used to make future predictions. The forecasting model used does allow **additional data** (other than "Global Active Power") to be used for training. 
-        Using more data can help improve the forecasting models performance.""")
+
+st.markdown(" ")
+st.markdown(" ")
+st.markdown("#### Forecast model 📈")
+st.markdown("""The forecasting model used in this use case allows **additional data** to be used for training. 
+        Try adding more data to the model as it can help improve its performance and accuracy.""")
+
 
 
 # ADD VARIABLES TO ANALYSIS
 add_var = ["Sub_metering_1", "Sub_metering_2", "Sub_metering_3","Global_intensity"]
 st.markdown("")
 select_add_var = st.multiselect("**Add variables to the model**", add_var)
+
+if 'model_train' not in st.session_state:
+    st.session_state['model_train'] = False
+    
+# if st.session_state.model_train:
+#     text = "The model has alerady been trained."
+# else:
+#     st.write("The model hasn't been trained yet")
+
 st.markdown("")
-run_model = st.button("**Run the model**", type="primary")
+run_model = st.button("**Run the model**")
 
 
 st.markdown("    ")
@@ -198,72 +195,121 @@ st.markdown("    ")
 
 
 
-################################## PROPHET MODEL ###############################
+
+################################## SEE RESULTS ###############################
+
+if "saved_model" not in st.session_state:
+    st.session_state["saved_model"] = False
+
+@st.cache_data
+def forecast_prophet(train, test, col=None):
+    model = Prophet(daily_seasonality=False)
+    
+    for col in select_add_var:
+        model.add_regressor(col)
+    
+    model.fit(train)
+    forecast = model.predict(test)
+    return model, forecast
 
 
 if run_model:
     with st.spinner('Wait for it...'):
-        # ADD REGRESSORS TO MODEL
-        m = Prophet(daily_seasonality=False)
-        for col in select_add_var:
-            m.add_regressor(col)
-        
-        m.fit(train)
-        forecast = m.predict(test)
+        fbmodel, forecast = forecast_prophet(train, test, col=select_add_var)
+        st.session_state.model_train = True
+        st.session_state.saved_model = fbmodel
 
-        st.markdown("##### See results")
+        ####################### SEE RESULTS ########################
+        st.markdown("#### See the results ☑️")
+        st.info("The model is able to forecast energy consumption as well as learn the predicted data's **trend**, **weekly** and **yearly seasonality**.")
 
-        tab1_result, tab2_result, tab3_result, tab4_result = st.tabs(["True vs Predicted", "Trend", "Weekly seasonality", "Yearly seasonality"])
+        tab1_result, tab2_result, tab3_result, tab4_result = st.tabs(["Performance", "Trend", "Weekly seasonality", "Yearly seasonality"])
         with tab1_result:
             # Compute model root mean squared error
             y_true = test_plot["y"]
             y_pred = forecast["yhat"]
-            error = str(np.round(root_mean_squared_error(y_true, y_pred),3))
+            error = str(np.round(root_mean_squared_error(y_true, y_pred, ),3))
 
-            # Create df for true vs predicted plot
-            df_results = pd.concat([test_plot.reset_index(drop=True), forecast.drop(columns=["ds"]).reset_index(drop=True)], axis=1)[["ds","y","yhat"]]
-            df_results = df_results.melt(id_vars="ds")
-            df_results["variable"] = df_results["variable"].map({"y":"true values", "yhat":"predicted values"})
-            df_results.columns = ["Date", "Variable", "Global Active Power"]
+            col1, col2 = st.columns([0.1,0.9])
+
+            with col1:
+                st.markdown("")
+                st.metric(label="**Average error**", value=error)
             
-            fig = px.line(df_results, x="Date", y="Global Active Power", color="Variable", 
-                    color_discrete_sequence=["blue", "black"], line_dash = 'Variable')
+            with col2:
+                # Create df for true vs predicted plot
+                df_results = pd.concat([test_plot.reset_index(drop=True), forecast.drop(columns=["ds"]).reset_index(drop=True)], axis=1)[["ds","y","yhat"]]
+                df_results = df_results.melt(id_vars="ds")
+                df_results["variable"] = df_results["variable"].map({"y":"true values", "yhat":"predicted values"})
+                df_results.columns = ["Date", "Variable", "Global Active Power"]
+                
+                fig = px.line(df_results, x="Date", y="Global Active Power", color="Variable", 
+                        color_discrete_sequence=["lightblue", "black"], line_dash = 'Variable')
 
-            fig.update_layout(
-                title=f'True vs predicted power consumption (error={error})',
-                width=1200,  
-                height=600  
-            )
+                fig.update_layout(
+                    title=f'True vs predicted power consumption',
+                    width=1200,  
+                    height=600  
+                )
 
-            st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
 
         with tab2_result:
             ymin = forecast["trend"].min() 
             ymax = forecast["trend"].max()
             
-            fig = px.area(forecast, x="ds", y="trend", color_discrete_sequence=["red"], range_y=[ymin, ymax])
-            fig.update_layout(title="Trend of the power consumption")
+            fig = px.area(forecast, x="ds", y="trend", color_discrete_sequence=["red"]) #range_y=[ymin, ymax])
+            fig.update_layout(title="Trend", xaxis_title="Date", yaxis_title="Trend")
             st.plotly_chart(fig, use_container_width=True)
+            st.markdown("""**Interpretation** <br>
+                        No trend in the household's energy consumption has been detected by the model.""", unsafe_allow_html=True)
 
         with tab3_result:
-            days_week = dict(zip(np.arange(1,8),["Sunday", "Monday", "Tuedsay", "Wednesday", "Thursday", "Friday", "Saturday"]))
+            #st.success("**Weekly seasonality** refers to a repeating pattern or variation that occurs on a weekly basis on the energy consumption data.")
+            days_week = dict(zip(np.arange(1,8),["Monday", "Tuedsay", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]))
             forecast_weekly = forecast.copy()
             forecast_weekly["dayweek"] = forecast_weekly["ds"].apply(lambda x: x.isoweekday()).map(days_week)
 
             fig = px.area(forecast_weekly, x="dayweek", y="weekly", color_discrete_sequence=["purple"])
-            fig.update_layout(title="Weekly seasonality of the power consumption")
+            fig.update_layout(title="Weekly seasonality", xaxis_title="Date", yaxis_title="Weekly")
             st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("""**Interpretation** <br>
+            The household consumes more electrical power during the week-end (Saturday and Sunday) then during the week.           
+                        """, unsafe_allow_html=True)
 
         with tab4_result:
             forecast_year = forecast[["ds","yearly"]].copy()
             forecast_year["ds_year"] = forecast_year["ds"].apply(lambda x: x.strftime("%B %d"))
             forecast_year["ds"] = forecast_year["ds"].apply(lambda x: x.strftime("%m-%d"))
             forecast_year.sort_values(by=["ds"], inplace=True)
-
             forecast_year = forecast_year.groupby(["ds","ds_year"]).mean().reset_index()
-            fig = px.area(forecast_year, x="ds_year", y="yearly", color_discrete_sequence=["green"])
-            fig.update_layout(title="Yearly seasonality of the power consumption")
-            st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("")
+            ts_chart = alt.Chart(forecast_year, title="Yearly seasonality").mark_area(opacity=0.5,line = {'color':'darkblue'}).encode(
+                x=alt.X('ds_year:T', axis=alt.Axis(format='%b', tickCount=12), title="Date"),
+                y=alt.Y('yearly:Q', title="Yearly seasonality"),
+                ).interactive()
+
+            st.altair_chart(ts_chart, use_container_width=True)
+
+            st.markdown("""**Interpretation** <br>
+            The household consumes more energy during the winter (November to February) and less during the warmer months.           
+                        """, unsafe_allow_html=True)
+            
 
 
-#############################
+################################## MAKE FUTURE PREDICTIONS ###############################
+
+# st.markdown("#### Forecast new values ")
+
+# st.info("**The model needs to be trained before it can predict new values.**")
+
+# st.
+
+# make_predictions = st.button("**Forecast new values**")
+
+# if make_predictions is True:
+#     if st.session_state.saved_model is True:
+
+
