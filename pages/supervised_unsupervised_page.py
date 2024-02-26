@@ -48,7 +48,7 @@ with col2:
 - They are also used to identify unusual patterns or outliers.
                 """, unsafe_allow_html=True)
     st.markdown(" ")
-    st.image("images/unsupervised_learner.webp", caption="An example of unsupervised Learning", width=450)
+    st.image("images/unsupervised_learner.webp", caption="An example of unsupervised Learning")
 
 st.markdown("  ")
 
@@ -74,8 +74,8 @@ if learning_type == "Supervised Learning":
     
     # st.divider()
     
-    path_data_supervised = r"data\classification"
-    path_pretrained_supervised = r"pretrained_models\supervised_learning"
+    path_data_supervised = r"data/classification"
+    path_pretrained_supervised = r"pretrained_models/supervised_learning"
     
     ################################# CREDIT SCORE ######################################
     
@@ -355,6 +355,7 @@ def markdown_general_info(df):
     return text
 
 
+
 if learning_type == "Unsupervised Learning":
     usl_usecase = st.selectbox("**Choose a use case**", 
                           ["Customer segmentation 🧑‍🤝‍🧑"])
@@ -362,8 +363,8 @@ if learning_type == "Unsupervised Learning":
 
     #################################### CUSTOMER SEGMENTATION ##################################
 
-    path_clustering = r"data\clustering"
-    path_clustering_results = r"data\clustering\results"
+    path_clustering = r"data/clustering"
+    path_clustering_results = r"data/clustering/results"
 
     if usl_usecase == "Customer segmentation 🧑‍🤝‍🧑":
 
