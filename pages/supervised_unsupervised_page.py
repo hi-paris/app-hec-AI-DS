@@ -32,20 +32,20 @@ col1, col2 = st.columns(2, gap="large")
 
 with col1: 
     st.markdown("### Supervised Learning")
-    st.markdown("""In supervised learning, models are trained by learning from "labeled data". <br>
+    st.markdown("""In supervised learning, models are trained by learning from **labeled data**. <br>
                 Labeled data provides to the model the desired output, which it will then use to learn relevant patterns and make predictions. 
-- A model is first trained to make predictions using labeled data
-- The trained model can then be used to predict values for new data.
+- A model is first **trained** to make predictions using labeled data
+- The trained model can then be used to **predict values** for new data.
                 """, unsafe_allow_html=True)
     st.markdown(" ")
     st.image("images/supervised_learner.png", caption="An example of supervised learning")
 
 with col2:
     st.markdown("### Unsupervised Learning")
-    st.markdown("""In unsupervised learning, models learn the data's inherent structure without any explicit guidance  on what to look for.
-                The algorithm will identify any naturally occurring patterns in the dataset using "unlabeled data". 
-- They can be useful for applications where the goal is to discover unknown groupings in the data.
-- They are also used to identify unusual patterns or outliers.
+    st.markdown("""In unsupervised learning, models **learn the data's inherent structure** without any explicit guidance on what to look for.
+                The algorithm will identify any naturally occurring patterns in the dataset using **unlabeled data**. 
+- They can be useful for applications where the goal is to discover **unknown groupings** in the data.
+- They are also used to identify unusual patterns or **outliers**.
                 """, unsafe_allow_html=True)
     st.markdown(" ")
     st.image("images/unsupervised_learner.webp", caption="An example of unsupervised Learning")
@@ -369,7 +369,8 @@ if learning_type == "Unsupervised Learning":
     if usl_usecase == "Customer segmentation 🧑‍🤝‍🧑":
 
         # st.divider()
-        st.markdown("### Customer Segmentation (Clustering) 🧑‍🤝‍🧑 ")
+        st.divider()
+        st.markdown("## Customer Segmentation (Clustering) 🧑‍🤝‍🧑")
 
         st.info("""**Unsupervised learning** methods, such as clustering, are valulable tools for cases where you want a model to discover patterns by itself, without having to give it examples to learn from.
                     They can be useful for companies that want to perform **Customer Segmentation**. 
