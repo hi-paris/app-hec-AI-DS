@@ -216,10 +216,16 @@ if select_usecase == "Movie recommendation system 📽️":
             
 
 # Load scaler with caching
-
-
-
+    
+    
+        
 if select_usecase == "Hotel recommendation system 🛎️":
+
+    @st.cache_data(ttl=3600)
+    def get_scaler(df):
+        scaler = MinMaxScaler()
+        scaler.fit(df[['Rating', 'Price']])
+        return scaler
 
     def recommend_hotels_with_location_and_beds(df, preferences, max_recommendations=5):
         # Start with the full dataset
@@ -337,7 +343,6 @@ From gleaming skyscrapers to vibrant neighborhoods, this cosmopolitan gem in Sou
         see_top_places = st.checkbox("**Top places to visit**", key={country})
         if see_top_places:
             st.markdown(top_places)
-        
 
     st.markdown("""## Hotel Recommendation System 🛎️""")
 
