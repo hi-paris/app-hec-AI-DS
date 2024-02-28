@@ -295,7 +295,7 @@ if learning_type == "Supervised Learning":
                 
                 perct_bad_score = df_mean_pred.loc[df_mean_pred["Credit Score"]=="Poor"]["Proportion"].to_numpy()
 
-                if perct_bad_score >= 50:
+                if perct_bad_score >= warning_threshold:
                     st.error(f"The proportion of clients with a bad credit score is above {warning_threshold}% (at {perct_bad_score[0]}%)⚠️")
 
                 col1, col2 = st.columns([0.4,0.6], gap="large")

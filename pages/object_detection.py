@@ -130,7 +130,7 @@ st.markdown("# Object Detection")
 st.markdown("### What is Object Detection ?")
            
 #st.markdown("""Object detection involves **identifying** and **locating objects** within an image or video frame through bounding boxes. """)
-st.markdown("""Object Detection is a computer vision task in which the goal is to **detect** and **locate objects** of interest in an image or video. 
+st.info("""Object Detection is a computer vision task in which the goal is to **detect** and **locate objects** of interest in an image or video. 
             The task involves identifying the position and boundaries of objects (or **bounding boxes**) in an image, and classifying the objects into different categories.""")
 
 

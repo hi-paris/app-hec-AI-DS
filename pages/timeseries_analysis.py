@@ -7,12 +7,22 @@ import numpy as np
 from PIL import Image
 from prophet import Prophet
 from datetime import date
-from utils import load_data_csv
+from utils import load_data_pickle
 from sklearn.metrics import root_mean_squared_error
 
 
-
 st.set_page_config(layout="wide")
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def forecast_prophet(train, test, col=None):
+    model = Prophet(daily_seasonality=False)
+    
+    for col in select_add_var:
+        model.add_regressor(col)
+    
+    model.fit(train)
+    forecast = model.predict(test)
+    return model, forecast
 
 
 ###################################### TITLE ####################################
@@ -53,7 +63,7 @@ st.markdown("    ")
 
 # LOAD DATASET
 path_timeseries = r"data/household"
-data_model = load_data_csv(path_timeseries,"household_power_consumption_clean.csv")
+data_model = load_data_pickle(path_timeseries,"household_power_consumption_clean.pkl")
 data_model.rename({"Date":"ds", "Global_active_power":"y"}, axis=1, inplace=True)
 data_model.dropna(inplace=True)
 data_model["ds"] = pd.to_datetime(data_model["ds"])
@@ -154,7 +164,7 @@ with tab4:
 with tab5:
     custom_color_scale = alt.Scale(range=['red', 'lightcoral'])
     ts_chart = alt.Chart(data_clean_plot.loc[data_clean_plot["split"]=="historical data"]).mark_line().encode(
-        x=alt.X('ds:T', title="Date"),
+        x=alt.X('ds:T', axis=alt.Axis(format='%b %Y', tickCount=12), title="Date"),
         y=alt.Y('Global_intensity:Q', title="Global active power"),
         color=alt.Color('split:N')) # scale=custom_color_scale))
 
@@ -200,17 +210,6 @@ st.markdown("    ")
 
 if "saved_model" not in st.session_state:
     st.session_state["saved_model"] = False
-
-@st.cache_data
-def forecast_prophet(train, test, col=None):
-    model = Prophet(daily_seasonality=False)
-    
-    for col in select_add_var:
-        model.add_regressor(col)
-    
-    model.fit(train)
-    forecast = model.predict(test)
-    return model, forecast
 
 
 if run_model:

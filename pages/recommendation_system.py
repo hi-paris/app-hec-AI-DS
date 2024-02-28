@@ -11,6 +11,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from annotated_text import annotated_text
 from utils import load_data_pickle, load_model_pickle, load_data_csv
 
+
+
 st.set_page_config(layout="wide")
 
 
@@ -22,12 +24,12 @@ st.markdown("### What is a Recommendation System ?")
 st.info("""**Recommendation systems** are AI algorithms built to **suggest** or **recommend** **products** to consumers.
         They are very common in social media platforms such as TikTok, Youtube or Instagram or e-commerce websites as they help improve and personalize a consumer's experience.""")
 
-st.markdown("")
 st.markdown("""There are two methods to build recommendation systems:
 - **Content-based filtering**: Recommendations are made based on the user's own preferences
 - **Collaborative filtering**: Recommendations are made based on the preferences and behavior of similar users""", unsafe_allow_html=True)
             
 # st.markdown("""Here is an example of **Content-based filtering versus Collaborative filtering** for movie recommendations.""")
+st.markdown(" ")
 st.markdown(" ")
 
 _, col_img, _ = st.columns(spec=[0.2,0.6,0.2])
@@ -51,7 +53,47 @@ select_usecase = st.selectbox("**Choose a use case**",
 
 st.divider()
 
-###################################### MOVIE RECOMMENDATION SYSTEM ########################################
+
+
+#####################################################################################################
+#                                       MOVIE RECOMMENDATION SYSTEM                                 #
+#####################################################################################################
+
+# Recommendation function
+def recommend(movie_name, nb):
+    n_movies_to_recommend = nb
+    idx = movies[movies['title'] == movie_name].index[0]
+
+    distances, indices = model.kneighbors(csr_data[idx], n_neighbors=n_movies_to_recommend + 1)
+    idx = list(indices.squeeze())
+    df = np.take(movies, idx, axis=0)
+
+    movies_list = list(df.title[1:])
+
+    recommend_movies_names = []
+    recommend_posters = []
+    movie_ids = []
+    for i in movies_list:
+        temp_movie_id = (movies[movies.title ==i].movie_id).values[0]
+        movie_ids.append(temp_movie_id)
+        
+        # fetch poster
+        try:
+            poster = fetch_poster(temp_movie_id)
+            recommend_posters.append(poster)
+        except:
+            recommend_posters.append(None)
+        
+        recommend_movies_names.append(i)
+    return recommend_movies_names, recommend_posters, movie_ids
+
+# Get poster
+def fetch_poster(movie_id):
+    response = requests.get(f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}')
+    data = response.json()
+    return "https://image.tmdb.org/t/p/w500/" + data["poster_path"]
+
+
 
 if select_usecase == "Movie recommendation system 📽️":
 
@@ -74,42 +116,6 @@ if select_usecase == "Movie recommendation system 📽️":
     with open(os.path.join(path_data,'csr_data_tf.pkl'), 'rb') as file:
         csr_data = pickle.load(file)
 
-    # Recommendation function
-    def recommend(movie_name, nb):
-        n_movies_to_recommend = nb
-        idx = movies[movies['title'] == movie_name].index[0]
-
-        distances, indices = model.kneighbors(csr_data[idx], n_neighbors=n_movies_to_recommend + 1)
-        idx = list(indices.squeeze())
-        df = np.take(movies, idx, axis=0)
-
-        movies_list = list(df.title[1:])
-
-        recommend_movies_names = []
-        recommend_posters = []
-        movie_ids = []
-        for i in movies_list:
-            temp_movie_id = (movies[movies.title ==i].movie_id).values[0]
-            movie_ids.append(temp_movie_id)
-            
-            # fetch poster
-            try:
-                poster = fetch_poster(temp_movie_id)
-                recommend_posters.append(poster)
-            except:
-                recommend_posters.append(None)
-            
-            recommend_movies_names.append(i)
-        return recommend_movies_names, recommend_posters, movie_ids
-
-    # Get poster
-    def fetch_poster(movie_id):
-        response = requests.get(f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}')
-        data = response.json()
-        return "https://image.tmdb.org/t/p/w500/" + data["poster_path"]
-
-
-
 
     # Description of the use case
     st.markdown("""## Movie Recommendation System 📽️""")
@@ -121,9 +127,7 @@ if select_usecase == "Movie recommendation system 📽️":
     """, unsafe_allow_html=True)
     st.markdown(" ")
 
-    # st.info("""This use case showcases the use of recommender systems for **movie recommendations**, using collaborative filtering. 
-    #         Recommendations are made based on the movies that similar users watched and not on how similar a movie is. """)
-
+    
     # User selection
     selected_movie = st.selectbox("**Select a movie**", movies["title"].values[:-3])
     selected_nb_movies = st.selectbox("**Select a number of movies to recommend**", np.arange(2,7), index=3)
@@ -206,112 +210,18 @@ if select_usecase == "Movie recommendation system 📽️":
 
 
 
+#####################################################################################################
+#                                       HOTEL RECOMMENDATION SYSTEM                                 #
+#####################################################################################################
+            
 
-
-############################################ HOTEL RECOMMENDATION SYSTEM ############################################
-
-if select_usecase == "Hotel recommendation system 🛎️":
-
-    st.markdown("""## Hotel Recommendation System 🛎️""")
-
-    st.info("""This use case shows how you can create personalized hotel recommendations using a recommendation system with **content-based Filtering**. 
-                Analyzing location, amenities, price, and reviews, the model suggests tailored hotel recommendation based on the user's preference.
-    """)
-    st.markdown(" ")
-
-
-    path_hotels_data = r"data/hotels"
-
-    # Load hotel data
-    df = load_data_csv(path_hotels_data,"booking_df.csv")
-
-    # clean data
-    df.drop_duplicates(inplace=True)
-    df["Country"] = df["Country"].apply(lambda x: "Spain" if x=="Espagne" else x)
-    list_cities = df["City"].value_counts().to_frame().reset_index()
-    list_cities = list_cities.loc[list_cities["count"]>=5,"City"].to_numpy()
-    df = df.loc[(df["City"].isin(list_cities)) & (df["Number of bed"]<=6)]
-    df["Price"] = df["Price"].astype(int)
-    df.loc[(df["Number of bed"]==0) & (df["Price"]<1000),"Number of bed"] = 1
-    df.loc[(df["Number of bed"]==0) & (df["Price"].between(1000,2000)),"Number of bed"] = 2
-    df.loc[(df["Number of bed"]==0) & (df["Price"]>2000),"Number of bed"] = 3
-
-    df["Rating"] = df["Rating"].apply(lambda x: np.nan if x==0 else x)
-    df["Rating"].fillna(np.round(df["Rating"].mean(), 1), inplace=True)
-
-
-    # Load scaler with caching
+# Load scaler with caching
+    
     @st.cache_data()
     def get_scaler(df):
         scaler = MinMaxScaler()
         scaler.fit(df[['Rating', 'Price']])
         return scaler
-
-    scaler = get_scaler(df)
-
-
-
-    def country_info(country):
-        if country == "Thailand":
-            image = "images/thailand.jpeg"
-            emoji = "🏝️"
-            description = """**Description**: 
-Thailand seamlessly fuses ancient traditions with modern dynamism, creating an unparalleled tapestry for travelers. 
-Renowned for its warm hospitality, vibrant culture, and delectable cuisine, Thailand offers an unforgettable experience for every adventurer."""
-            top_places = """
-- **Bangkok**: Immerse yourself in the hustle and bustle of Bangkok's streets, adorned with glittering temples and bustling markets. The Grand Palace and Khao San Road showcase the city's unique blend of tradition and modernity.
-- **Chiang Mai**: Nestled in the misty mountains of Northern Thailand, Chiang Mai captivates with ancient temples, lush landscapes, and vibrant night markets. The Old City exudes a unique atmosphere, while the surrounding hills offer tranquility.
-- **Phuket**: Thailand's largest island, Phuket, beckons beach lovers with its stunning white sands, vibrant nightlife, and water activities. It's a perfect blend of relaxation and excitement."""
-
-        if country == "France":
-            image = "images/france.jpeg"
-            emoji = "⚜️"
-            description ="""**Description**:
-Indulge in the countries rich tapestry of art, culture, and gastronomy. 
-From the romantic allure of Paris to the sun-kissed vineyards of Provence, every corner of this diverse country tells a unique story, promising an unforgettable journey for every traveler."""
-            top_places = """ 
-- **Paris**: Dive into the city's iconic landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral grace the skyline.
-- **Provence**: Visit the stunning Palais des Papes in Avignon, explore the colorful markets of Aix-en-Provence, and unwind in the serene beauty of the Luberon region.
-- **Côte d'Azur**: This stunning stretch of the French coastline is a captivating blend of azure waters, picturesque landscapes and charming villages.
-"""
-
-        if country == "Spain":
-            image = "images/spain.webp"
-            emoji = "☀️"
-            description = """**Description**:
-Embark on an unforgettable journey where tradition and modernity coexist in harmony. 
-From the lively streets of Barcelona to the sun-soaked beaches of Andalusia, Spain offers a captivating blend of history, culture, and natural beauty.            
-"""
-            top_places = """
-- **Barcelona**: Explore the iconic Sagrada Familia, stroll down the vibrant La Rambla, and soak in the Mediterranean ambiance at Barceloneta Beach.
-- **Seville**: Visit the awe-inspiring Alcázar, marvel at the Giralda Tower, and wander through the enchanting alleys of the Santa Cruz neighborhood.
-- **Granada**: Explore the Generalife Gardens, stroll through the Albayzín quarter with its narrow streets and white houses, and savor the views of the city from the Mirador de San Nicolás.
-"""
-
-        if country == "Singapore":
-            image = "images/singapore.jpg"
-            emoji = "🏙️"
-            description = """**Description**:
-From gleaming skyscrapers to vibrant neighborhoods, this cosmopolitan gem in Southeast Asia promises an immersive journey into a world where tradition meets cutting-edge technology."""
-
-            top_places = """
-- **Marina Bay Sands**: Enjoy panoramic views from the SkyPark, take a dip in the infinity pool, and explore The Shoppes for luxury shopping and entertainment. At night, witness the mesmerizing light and water show at the Marina Bay Sands Skypark.
-- **Gardens by the Bay**: Explore the Flower Dome and Cloud Forest conservatories, and stroll through the scenic OCBC Skyway for breathtaking views of the gardens and city.
-- **Sentosa Island**: Escape to Sentosa Island, a resort destination offering a myriad of attractions. Relax on pristine beaches, visit Universal Studios Singapore for thrilling rides, and explore S.E.A. Aquarium for an underwater adventure.
-
-"""
-
-        ###### STREAMLIT MARKDOWN ######
-        st.header(f"{country} {emoji}", divider="grey")
-        st.image(image)
-        st.markdown(description)
-
-        see_top_places = st.checkbox("**Top places to visit**", key={country})
-        if see_top_places:
-            st.markdown(top_places)
-
-
-
 
     def recommend_hotels_with_location_and_beds(df, preferences, max_recommendations=5):
         # Start with the full dataset
@@ -370,9 +280,99 @@ From gleaming skyscrapers to vibrant neighborhoods, this cosmopolitan gem in Sou
         """
         print("Notification:", message)
 
-    # Streamlit UI components for collecting user preferences
-    #st.title("Hotel Recommendation System")
+
+    def country_info(country):
+        if country == "Thailand":
+            image = "images/thailand.jpeg"
+            emoji = "🏝️"
+            description = """**Description**: 
+Thailand seamlessly fuses ancient traditions with modern dynamism, creating an unparalleled tapestry for travelers. 
+Renowned for its warm hospitality, vibrant culture, and delectable cuisine, Thailand offers an unforgettable experience for every adventurer."""
+            top_places = """
+- **Bangkok**: Immerse yourself in the hustle and bustle of Bangkok's streets, adorned with glittering temples and bustling markets. The Grand Palace and Khao San Road showcase the city's unique blend of tradition and modernity.
+- **Chiang Mai**: Nestled in the misty mountains of Northern Thailand, Chiang Mai captivates with ancient temples, lush landscapes, and vibrant night markets. The Old City exudes a unique atmosphere, while the surrounding hills offer tranquility.
+- **Phuket**: Thailand's largest island, Phuket, beckons beach lovers with its stunning white sands, vibrant nightlife, and water activities. It's a perfect blend of relaxation and excitement."""
+
+        if country == "France":
+            image = "images/france.jpeg"
+            emoji = "⚜️"
+            description ="""**Description**:
+Indulge in the countries rich tapestry of art, culture, and gastronomy. 
+From the romantic allure of Paris to the sun-kissed vineyards of Provence, every corner of this diverse country tells a unique story, promising an unforgettable journey for every traveler."""
+            top_places = """ 
+- **Paris**: Dive into the city's iconic landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral grace the skyline.
+- **Provence**: Visit the stunning Palais des Papes in Avignon, explore the colorful markets of Aix-en-Provence, and unwind in the serene beauty of the Luberon region.
+- **Côte d'Azur**: This stunning stretch of the French coastline is a captivating blend of azure waters, picturesque landscapes and charming villages.
+"""
+
+        if country == "Spain":
+            image = "images/spain-banner.jpg"
+            emoji = "☀️"
+            description = """**Description**:
+Embark on an unforgettable journey where tradition and modernity coexist in harmony. 
+From the lively streets of Barcelona to the sun-soaked beaches of Andalusia, Spain offers a captivating blend of history, culture, and natural beauty.            
+"""
+            top_places = """
+- **Barcelona**: Explore the iconic Sagrada Familia, stroll down the vibrant La Rambla, and soak in the Mediterranean ambiance at Barceloneta Beach.
+- **Seville**: Visit the awe-inspiring Alcázar, marvel at the Giralda Tower, and wander through the enchanting alleys of the Santa Cruz neighborhood.
+- **Granada**: Explore the Generalife Gardens, stroll through the Albayzín quarter with its narrow streets and white houses, and savor the views of the city from the Mirador de San Nicolás.
+"""
+
+        if country == "Singapore":
+            image = "images/singapore.jpg"
+            emoji = "🏙️"
+            description = """**Description**:
+From gleaming skyscrapers to vibrant neighborhoods, this cosmopolitan gem in Southeast Asia promises an immersive journey into a world where tradition meets cutting-edge technology."""
+
+            top_places = """
+- **Marina Bay Sands**: Enjoy panoramic views from the SkyPark, take a dip in the infinity pool, and explore The Shoppes for luxury shopping and entertainment. At night, witness the mesmerizing light and water show at the Marina Bay Sands Skypark.
+- **Gardens by the Bay**: Explore the Flower Dome and Cloud Forest conservatories, and stroll through the scenic OCBC Skyway for breathtaking views of the gardens and city.
+- **Sentosa Island**: Escape to Sentosa Island, a resort destination offering a myriad of attractions. Relax on pristine beaches, visit Universal Studios Singapore for thrilling rides, and explore S.E.A. Aquarium for an underwater adventure.
+
+"""
+
+        ###### STREAMLIT MARKDOWN ######
+        st.header(f"{country} {emoji}", divider="grey")
+        st.image(image)
+        st.markdown(description)
+
+        see_top_places = st.checkbox("**Top places to visit**", key={country})
+        if see_top_places:
+            st.markdown(top_places)
         
+
+
+if select_usecase == "Hotel recommendation system 🛎️":
+
+    st.markdown("""## Hotel Recommendation System 🛎️""")
+
+    st.info("""This use case shows how you can create personalized hotel recommendations using a recommendation system with **content-based Filtering**. 
+                Analyzing location, amenities, price, and reviews, the model suggests tailored hotel recommendation based on the user's preference.
+    """)
+    st.markdown(" ")
+
+
+    path_hotels_data = r"data/hotels"
+
+    # Load hotel data
+    df = load_data_csv(path_hotels_data,"booking_df.csv")
+
+    # clean data
+    df.drop_duplicates(inplace=True)
+    df["Country"] = df["Country"].apply(lambda x: "Spain" if x=="Espagne" else x)
+    list_cities = df["City"].value_counts().to_frame().reset_index()
+    list_cities = list_cities.loc[list_cities["count"]>=5,"City"].to_numpy()
+    df = df.loc[(df["City"].isin(list_cities)) & (df["Number of bed"]<=6)]
+    df["Price"] = df["Price"].astype(int)
+    df.loc[(df["Number of bed"]==0) & (df["Price"]<1000),"Number of bed"] = 1
+    df.loc[(df["Number of bed"]==0) & (df["Price"].between(1000,2000)),"Number of bed"] = 2
+    df.loc[(df["Number of bed"]==0) & (df["Price"]>2000),"Number of bed"] = 3
+
+    df["Rating"] = df["Rating"].apply(lambda x: np.nan if x==0 else x)
+    df["Rating"].fillna(np.round(df["Rating"].mean(), 1), inplace=True)
+
+    scaler = get_scaler(df)
+
 
     col1, col2 = st.columns([0.3,0.7], gap="large")
 

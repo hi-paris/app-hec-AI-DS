@@ -24,9 +24,11 @@ def clean_text(text):
     text = text.replace("  "," ")
     return text
 
-@st.cache_data
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_sa_model():
     return create_analyzer(task="sentiment", lang="en")
+
+
 
 
 st.markdown("# Sentiment Analysis")
@@ -77,15 +79,15 @@ path_sa = "data/sa_data"
 reviews_df = load_data_pickle(path_sa,"reviews_raw.pkl")
 reviews_df.reset_index(drop=True, inplace=True)
 reviews_df["Date"] = reviews_df["Date"].dt.date
+reviews_df["Year"] = reviews_df["Year"].astype(int)
 
 
+
+st.markdown("#### Predict polarity 🤔")
 tab1_, tab2_ = st.tabs(["Starbucks reviews", "Write a review"])
-
-#st.markdown("The dataset contains the location (state), date, rating, text and images (if provided) for each review.")
 
 with tab1_:
     # FILTER DATA
-    
     st.markdown(" ")
 
     col1, col2 = st.columns([0.2, 0.8], gap="medium")
@@ -95,27 +97,28 @@ with tab1_:
                     You can filter the dataset by Date, State or Rating""", unsafe_allow_html=True)
         
         select_image_box = st.radio("",
-        ["Filter by Date (Year)", "Filter by State", "Filter by Rating", "Remove filters"],
-        index=None, label_visibility="collapsed")
+        ["Filter by Date (Year)", "Filter by State", "Filter by Rating", "No filters"],
+        index=3, label_visibility="collapsed")
 
         if select_image_box == "Filter by Date (Year)":
-            selected_date = st.multiselect("Date (Year)", reviews_df["Year"].unique())
+            selected_date = st.multiselect("Date (Year)", reviews_df["Year"].unique(), default=reviews_df["Year"].unique()[0])
             reviews_df = reviews_df.loc[reviews_df["Year"].isin(selected_date)]
 
         if select_image_box == "Filter by State":
-            selected_state = st.multiselect("State", reviews_df["State"].unique())
+            selected_state = st.multiselect("State", reviews_df["State"].unique(), default=reviews_df["State"].unique()[0])
             reviews_df = reviews_df.loc[reviews_df["State"].isin(selected_state)]
 
         if select_image_box == "Filter by Rating":
-            selected_rating = st.multiselect("Rating", sorted(list(reviews_df["Rating"].dropna().unique())))
+            selected_rating = st.multiselect("Rating", sorted(list(reviews_df["Rating"].dropna().unique())), 
+                                             default = sorted(list(reviews_df["Rating"].dropna().unique()))[0])
             reviews_df = reviews_df.loc[reviews_df["Rating"].isin(selected_rating)]
 
-        if select_image_box == "Remove filters":
+        if select_image_box == "No filters":
             pass
 
         #st.slider()
         run_model1 = st.button("**Run the model**", type="primary", key="tab1")
-        st.info("The model has already been trained here.")
+        st.info("The model has already been trained in this use case.")
 
     with col2:
     # VIEW DATA
@@ -130,10 +133,9 @@ with tab1_:
             hide_index=True)
         
 
-
+######### SHOW RESULTS ########
     if run_model1:
         with st.spinner('Wait for it...'):
-            time.sleep(2)
             df_results = load_data_pickle(path_sa,"reviews_results.pkl")
             df_results.reset_index(drop=True, inplace=True)
 
@@ -142,6 +144,7 @@ with tab1_:
             df_results["Review"] = reviews_df["Review"]
             st.markdown("  ")
 
+            st.markdown("#### See the results ☑️")
             tab1, tab2, tab3 = st.tabs(["All results", "Results per state", "Results per year"])        
             
             with tab1: # Overall results (tab_1)
@@ -195,7 +198,7 @@ with tab1_:
                 ).interactive()
 
                 st.markdown(" ")
-                st.altair_chart(chart_state, use_container_width=True)
+                st.altair_chart(chart_state)
 
 
             with tab3: # Results by year (tab_1)
@@ -212,8 +215,12 @@ with tab1_:
 
                 st.markdown(" ")
                 st.altair_chart(chart_year, use_container_width=True)
+        
+        # else:
+        #     st.warning("You must select at least one review to run the model.")
 
 
+#### WRITE YOUR OWN REVIEW #####""
 with tab2_:
     st.markdown("**Write your own review**")
 
