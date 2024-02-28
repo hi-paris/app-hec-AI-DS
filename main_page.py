@@ -22,10 +22,10 @@ st.set_page_config(layout="wide")
 #                              GOOGLE DRIVE CONNEXION                            #
 ##################################################################################
 
-if ["drive_oauth"] not in st.session_state:
-    st.session_state["drive_oauth"] = authenticate_drive()
+# if ["drive_oauth"] not in st.session_state:
+#     st.session_state["drive_oauth"] = authenticate_drive()
 
-drive_oauth = st.session_state["drive_oauth"]
+# drive_oauth = st.session_state["drive_oauth"]
 
 
 

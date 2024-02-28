@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 
 from google.oauth2 import service_account
-from googleapiclient.discovery import build
+#from googleapiclient.discovery import build
 from htbuilder import HtmlElement, div, hr, a, p, img, styles
 from pathlib import Path
 
@@ -48,15 +48,15 @@ def load_model(file):
     return model
 
 
-@st.cache_data(show_spinner=False) #3600 seconds
-def authenticate_drive():
-    creds = service_account.Credentials.from_service_account_info(
-        st.secrets["connections_gcs"],
-        scopes=["https://www.googleapis.com/auth/drive.readonly"]
-    )
-    drive_service = build('drive', 'v3', credentials=creds)
+# @st.cache_data(show_spinner=False) #3600 seconds
+# def authenticate_drive():
+#     creds = service_account.Credentials.from_service_account_info(
+#         st.secrets["connections_gcs"],
+#         scopes=["https://www.googleapis.com/auth/drive.readonly"]
+#     )
+#     drive_service = build('drive', 'v3', credentials=creds)
     
-    return drive_service
+#     return drive_service
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_content_drive(file_id, _drive_service):
