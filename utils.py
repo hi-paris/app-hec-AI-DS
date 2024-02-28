@@ -5,7 +5,7 @@ import base64
 import streamlit as st
 import pandas as pd
 
-from google.oauth2 import service_account
+#from google.oauth2 import service_account
 #from googleapiclient.discovery import build
 from htbuilder import HtmlElement, div, hr, a, p, img, styles
 from pathlib import Path
@@ -36,16 +36,16 @@ def load_model_pickle(path, file):
 
 #################### LOAD DATA FROM GOOGLE DRIVE ###################
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def load_data(file, sheet_name, **kwargs):
-    df = pd.read_excel(file, sheet_name=sheet_name, **kwargs)
-    return df
+# @st.cache_data(ttl=3600, show_spinner=False)
+# def load_data(file, sheet_name, **kwargs):
+#     df = pd.read_excel(file, sheet_name=sheet_name, **kwargs)
+#     return df
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def load_model(file):
-    """Load model from pickle file"""
-    model = pickle.load(file)
-    return model
+# @st.cache_data(ttl=3600, show_spinner=False)
+# def load_model(file):
+#     """Load model from pickle file"""
+#     model = pickle.load(file)
+#     return model
 
 
 # @st.cache_data(show_spinner=False) #3600 seconds
@@ -58,34 +58,34 @@ def load_model(file):
     
 #     return drive_service
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def load_content_drive(file_id, _drive_service):
-    """ Load content from google drive
-    """
-    request = _drive_service.files().get_media(fileId=file_id)
-    file_content = io.BytesIO(request.execute())
+# @st.cache_data(ttl=3600, show_spinner=False)
+# def load_content_drive(file_id, _drive_service):
+#     """ Load content from google drive
+#     """
+#     request = _drive_service.files().get_media(fileId=file_id)
+#     file_content = io.BytesIO(request.execute())
     
-    return file_content
+#     return file_content
     
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def load_data_drive(file_content, sheet_name=None, **kwargs):
-    """ Load data using file_content    
-    """
-    if sheet_name is None:
-        df = pd.read_excel(file_content, **kwargs)
-    else:
-        df = pd.read_excel(file_content, sheet_name=sheet_name, **kwargs)
+# @st.cache_data(ttl=3600, show_spinner=False)
+# def load_data_drive(file_content, sheet_name=None, **kwargs):
+#     """ Load data using file_content    
+#     """
+#     if sheet_name is None:
+#         df = pd.read_excel(file_content, **kwargs)
+#     else:
+#         df = pd.read_excel(file_content, sheet_name=sheet_name, **kwargs)
     
-    return df
+#     return df
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def load_model_drive(file_content):
-    """ Load model using file_content
-    """
-    model = pickle.load(file_content)
-    return model
+# @st.cache_data(ttl=3600, show_spinner=False)
+# def load_model_drive(file_content):
+#     """ Load model using file_content
+#     """
+#     model = pickle.load(file_content)
+#     return model
 
 
 # def files_in_drive(folder_id, drive_service):
